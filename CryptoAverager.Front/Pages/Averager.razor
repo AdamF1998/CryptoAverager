@@ -1,9 +1,80 @@
 ﻿@page "/averager"
+@using CryptoAverager.Front.RazorModels
 
-<h3>Averager</h3>
+<div class="row">
+    <div class="col-12">
+        <h3>Averager</h3>
+    </div>
+</div>
+
+<EditForm EditContext="@editContext" OnValidSubmit="@HandleValidSubmit">
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-12">
+                <h4>Exchanges</h4>
+            </div>
+            <ul style="list-style-type:none;">
+                <li>
+                    <div class="col-12">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input stretched-link" type="checkbox" value="" @bind="exchangeRazorModel.IsBinanceSelected" id="binanceCheckbox" />
+                            <label class="form-check-label" for="binanceCheckbox">
+                                <span><img width="50" src="/images/binance-logo.jpg" /></span>
+                            </label>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="form-check form-check-inline">
+                        <div class="col-12">
+                            <input class="form-check-input stretched-link" type="checkbox" value="" @bind="exchangeRazorModel.IsHuobiSelected" id="huobiCheckbox" />
+                            <label class="form-check-label" for="binanceCheckbox">
+                                <span><img width="50" src="/images/huobi-logo.png" /></span>
+                            </label>
+                        </div>
+                    </div>                   
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-primary" type="submit">Choose</button>
+    </div>
+
+    <div class="form-group">
+        <ValidationMessage For="() => exchangeRazorModel.IsHuobiSelected"></ValidationMessage>
+    </div>
+</EditForm>
 
 
 
 @code {
+    private ExchangeRazorModel exchangeRazorModel = new ExchangeRazorModel();
 
+    private EditContext editContext;
+    private ValidationMessageStore validationMessageStore;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(exchangeRazorModel);
+        editContext.OnValidationRequested += HandleValidationRequested;
+        validationMessageStore = new ValidationMessageStore(editContext);
+    }
+
+    private void HandleValidationRequested(object sender, ValidationRequestedEventArgs args)
+    {
+        validationMessageStore.Clear();
+
+        if (!exchangeRazorModel.IsBinanceSelected && !exchangeRazorModel.IsHuobiSelected)
+        {
+            validationMessageStore.Add(() => exchangeRazorModel.IsHuobiSelected, "Select at least one");
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+
+    }
 }
