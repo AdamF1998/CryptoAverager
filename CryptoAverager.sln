@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31613.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoAverager.Service", "CryptoAverager.Service\CryptoAverager.Service.csproj", "{62ECECE2-FCF6-4CA3-9713-5F6EDD05C9DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoAverager.Api", "CryptoAverager.Api\CryptoAverager.Api.csproj", "{470A7927-184B-46F8-ABA7-88B797B179E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoAverager.Utilities", "CryptoAverager.Utilities\CryptoAverager.Utilities.csproj", "{168A38AA-1110-460F-B332-92765F9BF06E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoAverager.Front", "CryptoAverager.Front\CryptoAverager.Front.csproj", "{717225C9-CD24-48F2-B79D-58170DC628B7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62ECECE2-FCF6-4CA3-9713-5F6EDD05C9DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62ECECE2-FCF6-4CA3-9713-5F6EDD05C9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62ECECE2-FCF6-4CA3-9713-5F6EDD05C9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62ECECE2-FCF6-4CA3-9713-5F6EDD05C9DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{470A7927-184B-46F8-ABA7-88B797B179E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{470A7927-184B-46F8-ABA7-88B797B179E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{470A7927-184B-46F8-ABA7-88B797B179E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{470A7927-184B-46F8-ABA7-88B797B179E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{168A38AA-1110-460F-B332-92765F9BF06E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{168A38AA-1110-460F-B332-92765F9BF06E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{168A38AA-1110-460F-B332-92765F9BF06E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{168A38AA-1110-460F-B332-92765F9BF06E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{717225C9-CD24-48F2-B79D-58170DC628B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{717225C9-CD24-48F2-B79D-58170DC628B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{717225C9-CD24-48F2-B79D-58170DC628B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{717225C9-CD24-48F2-B79D-58170DC628B7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1C9C173-E379-49CF-8A5E-28345C79F819}
+	EndGlobalSection
+EndGlobal
