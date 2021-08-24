@@ -1,0 +1,62 @@
+﻿@using  System.Globalization
+
+@inject IConfiguration _configuration
+@inject NavigationManager navigationManager
+
+@if (cultures != null)
+{
+    <form class="form-inline">
+        <select id="language-selector" class="form-control mr-2" @bind="selectedCulture">
+            @foreach (var culture in cultures)
+            {
+                <option value="@culture.Key" class="@culture.Value">
+                    @culture.Value
+                </option>
+            }
+        </select>
+
+        <button class="btn btn-primary" @onclick="RequestCultureChange">Change</button>
+    </form>
+}
+
+@code
+{
+    [Inject]
+    protected IJSRuntime JsRunTime { get; set; }
+
+    private string selectedCulture = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
+    private Dictionary<string, string> cultures;
+
+
+    protected override void OnInitialized()
+    {
+        cultures = _configuration.GetSection("Cultures").GetChildren().ToDictionary(x => x.Key, x => x.Value);
+    }
+
+    private void RequestCultureChange()
+    {
+        if (string.IsNullOrWhiteSpace(selectedCulture))
+        {
+            return;
+        }
+
+        var uri = new Uri(navigationManager.Uri)
+            .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+
+        var query = @$"?culture={Uri.EscapeDataString(selectedCulture)}&" +
+                    "redirectUri={Uri.EscapeDataString(uri)}";
+
+        navigationManager.NavigateTo("/Culture/Set" + query, forceLoad: true);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            JsRunTime.InvokeVoidAsync("onBlazorReady");
+        }
+    }
+}
+
+
+
