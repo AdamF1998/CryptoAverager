@@ -1,21 +1,14 @@
-﻿@using  System.Globalization
-
-@inject IConfiguration _configuration
+﻿@inject IConfiguration _configuration
+@inject IStringLocalizer<App> _localiser
 @inject NavigationManager navigationManager
 
 @if (cultures != null)
 {
     <form class="form-inline">
-        <select id="language-selector" class="form-control mr-2" @bind="selectedCulture">
-            @foreach (var culture in cultures)
-            {
-                <option value="@culture.Key" class="@culture.Value">
-                    @culture.Value
-                </option>
-            }
+        <select id="language-selector" class="form-control mr-2">
         </select>
 
-        <button class="btn btn-primary" @onclick="RequestCultureChange">Change</button>
+        <button class="btn btn-primary" @onclick="SendDotNetInstanceToJs">@_localiser["choose_language_button_text"]</button>
     </form>
 }
 
@@ -24,18 +17,35 @@
     [Inject]
     protected IJSRuntime JsRunTime { get; set; }
 
+    // Get the current culture for the user
     private string selectedCulture = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
-    private Dictionary<string, string> cultures;
 
+    private Dictionary<string, string> cultures;
 
     protected override void OnInitialized()
     {
         cultures = _configuration.GetSection("Cultures").GetChildren().ToDictionary(x => x.Key, x => x.Value);
     }
 
-    private void RequestCultureChange()
+    private async Task SendDotNetInstanceToJs()
     {
-        if (string.IsNullOrWhiteSpace(selectedCulture))
+        var dotNetObjRef = DotNetObjectReference.Create(this);
+        await JsRunTime.InvokeVoidAsync("updateCulture", dotNetObjRef);
+    }
+
+    private async Task SetCulture()
+    {
+        await JsRunTime.InvokeVoidAsync("setLanguageSelector", selectedCulture.Split('-')[1].ToLower());
+    }
+
+    [JSInvokable]
+    public void RequestCultureChange(string selectedCultureIso)
+    {
+        var test = selectedCulture;
+
+        var cultureInfo = cultures.Where(x => x.Key.Split('-')[1].ToLower() == selectedCultureIso).SingleOrDefault().Key;
+
+        if (cultureInfo == null)
         {
             return;
         }
@@ -43,18 +53,20 @@
         var uri = new Uri(navigationManager.Uri)
             .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
 
-        var query = @$"?culture={Uri.EscapeDataString(selectedCulture)}&" +
-                    "redirectUri={Uri.EscapeDataString(uri)}";
+        var query = $"?culture={Uri.EscapeDataString(cultureInfo)}&" +
+            $"redirectUri={Uri.EscapeDataString(uri)}";
 
-        navigationManager.NavigateTo("/Culture/Set" + query, forceLoad: true);
+        navigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            JsRunTime.InvokeVoidAsync("onBlazorReady");
+            await JsRunTime.InvokeVoidAsync("onBlazorReady");
         }
+
+        await SetCulture();
     }
 }
 

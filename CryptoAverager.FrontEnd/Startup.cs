@@ -1,12 +1,8 @@
-using CryptoAverager.FrontEnd.Data;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Globalization;
 using System.Linq;
 
 namespace CryptoAverager.FrontEnd
@@ -25,12 +21,9 @@ namespace CryptoAverager.FrontEnd
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
-
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

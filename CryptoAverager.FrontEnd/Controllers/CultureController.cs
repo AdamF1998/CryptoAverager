@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Localization;
 namespace CryptoAverager.FrontEnd.Controllers
 {
     [Route("[controller]/[action]")]
+    [ValidateAntiForgeryToken]
     public class CultureController : Controller
     {
         /// <summary>
@@ -13,13 +14,13 @@ namespace CryptoAverager.FrontEnd.Controllers
         /// <param name="culture"></param>
         /// <param name="redirectUri"></param>
         /// <returns></returns>
-        public IActionResult Set(string culture, string redirectUri)
+        public IActionResult SetCulture(string culture, string redirectUri)
         {
-            if (!string.IsNullOrEmpty(culture))
+            if (culture != null)
             {
                 HttpContext.Response.Cookies.Append(
                     CookieRequestCultureProvider.DefaultCookieName,
-                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture, culture)));
+                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)), new Microsoft.AspNetCore.Http.CookieOptions {IsEssential = true });
             }
 
             // Redirects the user back to the same place safely
