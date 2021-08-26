@@ -1,4 +1,4 @@
-﻿namespace CryptoAverager.Front.RazorModels
+﻿namespace CryptoAverager.FrontEnd.RazorModels
 {
     public class ExchangeRazorModel
     {

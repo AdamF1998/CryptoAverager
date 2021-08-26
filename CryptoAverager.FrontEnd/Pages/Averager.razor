@@ -1,24 +1,23 @@
 ﻿@page "/averager"
-@using CryptoAverager.Front.RazorModels
+@using CryptoAverager.FrontEnd.RazorModels
 
 <div class="row">
     <div class="col-12">
-        <h3>Averager</h3>
+        <h3 class="font-weight-bold">Averager</h3>
     </div>
 </div>
 
-<EditForm EditContext="@editContext" OnValidSubmit="@HandleValidSubmit">
-
+<EditForm EditContext="@editContext" OnValidSubmit="@HandleValidSubmit" hidden="@IsExchangeChoiceFormNotShown">
     <div class="form-group">
         <div class="row">
             <div class="col-12">
                 <h4>Select Exchanges</h4>
-                <p>Choose which exchanges you want us to pull order data from to create your averages :)</p>
+                <p>Choose which exchanges you want us to pull order data from to create your averages</p>
             </div>
             <ul style="list-style-type:none;">
                 <li>
-                    <div class="col-12 d-flex align-items-center">
-                        <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline">
+                        <div class="col-12 d-flex align-items-center">
                             <input class="form-check-input stretched-link" type="checkbox" value="" @bind="exchangeRazorModel.IsBinanceSelected" id="binanceCheckbox" />
                             <label class="form-check-label" for="binanceCheckbox">
                                 <span><img width="100" src="/images/exchangeLogos/binance-logo.jpg" /></span>
@@ -49,13 +48,57 @@
     </div>
 </EditForm>
 
+<EditForm Model="@binanceAuthenticationRazorModel" hidden="@IsBinanceAuthenticationNotShown">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-12">
+                <h4>Binance Authentication Details</h4>
+            </div>
+        </div>
+    </div>
+
+    <ValidationSummary />
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label" for="binanceAuthenticationApiKeyTextbox">Api Key</label>
+                <input class="form-control" type="text" @bind="binanceAuthenticationRazorModel.ApiKey" id="binanceAuthenticationApiKeyTextbox" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label" for="binanceAuthenticationSecretKeyTextbox">Secret Key</label>
+                <input class="form-control" type="text" @bind="binanceAuthenticationRazorModel.SecretKey" id="binanceAuthenticationSecretKeyTextbox" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-outline-primary" type="submit">Back</button>
+        <button class="btn btn-primary" type="submit">Authenticate</button>
+    </div>
+</EditForm>
+
+
 
 
 @code {
     private ExchangeRazorModel exchangeRazorModel = new ExchangeRazorModel();
+    private BinanceAuthenticationRazorModel binanceAuthenticationRazorModel = new BinanceAuthenticationRazorModel();
+    private HuobiAuthenticationRazorModel huobiAuthenticationRazorModel = new HuobiAuthenticationRazorModel();
 
     private EditContext editContext;
     private ValidationMessageStore validationMessageStore;
+
+    private bool IsExchangeChoiceFormNotShown { get; set; } = false;
+    private bool IsBinanceAuthenticationNotShown { get; set; } = true;
+
+
 
     protected override void OnInitialized()
     {
@@ -76,6 +119,12 @@
 
     private void HandleValidSubmit()
     {
+        // Hide the form to choose the exchanges
+        IsExchangeChoiceFormNotShown = !IsExchangeChoiceFormNotShown;
 
+        if (exchangeRazorModel.IsBinanceSelected)
+        {
+            IsBinanceAuthenticationNotShown = !IsBinanceAuthenticationNotShown;
+        }
     }
 }
