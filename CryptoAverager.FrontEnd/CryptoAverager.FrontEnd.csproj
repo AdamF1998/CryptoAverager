@@ -6,8 +6,6 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
-    <Folder Include="Resources\CultureSelector\" />
-    <Folder Include="Resources\NavMenu\" />
     <Folder Include="Resources\Averager\" />
   </ItemGroup>
 

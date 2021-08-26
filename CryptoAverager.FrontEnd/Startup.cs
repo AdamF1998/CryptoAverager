@@ -43,7 +43,7 @@ namespace CryptoAverager.FrontEnd
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRequestLocalization(GetLocalisationOptions());
+            app.UseRequestLocalization(GetLocalizationOptions());
 
             app.UseRouting();
 
@@ -55,19 +55,18 @@ namespace CryptoAverager.FrontEnd
             });
         }
 
-        private RequestLocalizationOptions GetLocalisationOptions()
+        private RequestLocalizationOptions GetLocalizationOptions()
         {
             var cultures = Configuration.GetSection("Cultures")
                 .GetChildren().ToDictionary(x => x.Key, x => x.Value);
 
             var supportedCultures = cultures.Keys.ToArray();
 
-            // Supported cultures handles the different data formats for cultures such as dates etc.
-            // Supported UI cultures is to do with the translation files inside the resources folder.
-
-            return new RequestLocalizationOptions()
+            var localizationOptions = new RequestLocalizationOptions()
                 .AddSupportedCultures(supportedCultures)
                 .AddSupportedUICultures(supportedCultures);
+
+            return localizationOptions;
         }
     }
 }
