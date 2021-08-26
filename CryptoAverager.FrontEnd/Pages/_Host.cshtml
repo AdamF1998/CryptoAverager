@@ -58,7 +58,7 @@
 
             // Once the user has chosen a language then we need to update the cookie with the correct culture
             window.updateCulture = (dotnetObjRef) => {
-                dotnetObjRef.invokeMethodAsync("RequestCultureChange", countryData.iso2);
+                dotnetObjRef.invokeMethodAsync("UpdateSelectedCultureBind", countryData.iso2);
             }
 
             // Set the country to the user's culture on-load

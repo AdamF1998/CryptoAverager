@@ -1,14 +1,14 @@
 ﻿@inject IConfiguration _configuration
 @inject IStringLocalizer<App> _localiser
-@inject NavigationManager navigationManager
+@inject NavigationManager NavigationManager
 
 @if (cultures != null)
 {
     <form class="form-inline">
-        <select id="language-selector" class="form-control mr-2">
+        <select id="language-selector" class="form-control mr-2" @bind="selectedCulture">
         </select>
 
-        <button class="btn btn-primary" @onclick="SendDotNetInstanceToJs">@_localiser["choose_language_button_text"]</button>
+        <button class="btn btn-primary" @onclick="RequestCultureChange">@_localiser["choose_language_button_text"]</button>
     </form>
 }
 
@@ -22,6 +22,8 @@
 
     private Dictionary<string, string> cultures;
 
+    private DotNetObjectReference<CultureSelector> dotNetObjRef;
+
     protected override void OnInitialized()
     {
         cultures = _configuration.GetSection("Cultures").GetChildren().ToDictionary(x => x.Key, x => x.Value);
@@ -29,20 +31,41 @@
 
     private async Task SendDotNetInstanceToJs()
     {
-        var dotNetObjRef = DotNetObjectReference.Create(this);
+        dotNetObjRef = DotNetObjectReference.Create(this);
         await JsRunTime.InvokeVoidAsync("updateCulture", dotNetObjRef);
     }
 
+    /// <summary>
+    /// To avoid a memory leak and allow garbage collection I dispose the DotNetObjectReferneceObject
+    /// </summary>
+    private void Dispose()
+    {
+        dotNetObjRef.Dispose();
+    }
+
+    /// <summary>
+    /// This method invokes a jquery function which updates the Country Select JS plugin with the selectedCulture
+    /// </summary>
+    /// <returns></returns>
     private async Task SetCulture()
     {
         await JsRunTime.InvokeVoidAsync("setLanguageSelector", selectedCulture.Split('-')[1].ToLower());
     }
 
+    /// <summary>
+    /// This method is invoked by JS once the user has clicked the button to change the language. 
+    /// The selectedCultureIso parameter is the current selected country in the Country Select JS plugin which is used to update the selectedCulture
+    /// </summary>
+    /// <param name="selectedCultureIso"></param>
     [JSInvokable]
-    public void RequestCultureChange(string selectedCultureIso)
+    public void UpdateSelectedCultureBind(string selectedCultureIso)
     {
-        var test = selectedCulture;
+        if (string.IsNullOrEmpty(selectedCultureIso))
+        {
+            return;
+        }
 
+        // the country iso code that I get back from the Country Select JS plugin is different so I just need to compare after the -
         var cultureInfo = cultures.Where(x => x.Key.Split('-')[1].ToLower() == selectedCultureIso).SingleOrDefault().Key;
 
         if (cultureInfo == null)
@@ -50,13 +73,32 @@
             return;
         }
 
-        var uri = new Uri(navigationManager.Uri)
-            .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        // Update the selected culture bind
+        selectedCulture = cultureInfo;
+    }
 
-        var query = $"?culture={Uri.EscapeDataString(cultureInfo)}&" +
+
+    public async void RequestCultureChange()
+    {
+        // Invoke the JS function to update the selected culture
+        await SendDotNetInstanceToJs();
+
+        if (string.IsNullOrEmpty(selectedCulture))
+        {
+            return;
+        }
+
+        var test = selectedCulture;
+
+
+
+        var uri = new Uri(NavigationManager.Uri)
+             .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+
+        var query = $"?culture={Uri.EscapeDataString(selectedCulture)}&" +
             $"redirectUri={Uri.EscapeDataString(uri)}";
 
-        navigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+        NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -66,6 +108,7 @@
             await JsRunTime.InvokeVoidAsync("onBlazorReady");
         }
 
+        // I need to do this because the plugin doesn't know about the user's current culture
         await SetCulture();
     }
 }

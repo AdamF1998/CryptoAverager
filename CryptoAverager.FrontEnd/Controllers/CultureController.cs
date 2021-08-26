@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Localization;
 namespace CryptoAverager.FrontEnd.Controllers
 {
     [Route("[controller]/[action]")]
-    [ValidateAntiForgeryToken]
     public class CultureController : Controller
     {
         /// <summary>
