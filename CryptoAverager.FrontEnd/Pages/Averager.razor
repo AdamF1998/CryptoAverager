@@ -2,6 +2,7 @@
 @using CryptoAverager.FrontEnd.RazorModels
 
 @inject IStringLocalizer<App> _localiser
+@inject IBinanceService _binanceService
 
 <div class="row">
     <div class="col-12">
@@ -9,7 +10,7 @@
     </div>
 </div>
 
-<EditForm EditContext="@editContext" OnValidSubmit="@HandleValidSubmit" hidden="@IsExchangeChoiceFormNotShown">
+<EditForm EditContext="@editContext" OnValidSubmit="@HandleValidExchangeChoiceSubmit" hidden="@IsExchangeChoiceFormNotShown">
     <div class="form-group">
         <div class="row">
             <div class="col-12">
@@ -50,7 +51,7 @@
     </div>
 </EditForm>
 
-<EditForm Model="@binanceAuthenticationRazorModel" hidden="@IsBinanceAuthenticationNotShown">
+<EditForm Model="@binanceAuthenticationRazorModel" OnValidSubmit="HandleValidExchangeAuthenticationCredentialsSubmit" hidden="@IsBinanceAuthenticationNotShown">
     <DataAnnotationsValidator />
 
     <div class="form-group">
@@ -99,7 +100,7 @@
 
     private bool IsExchangeChoiceFormNotShown { get; set; } = false;
     private bool IsBinanceAuthenticationNotShown { get; set; } = true;
-
+    private bool IsHuobiAuthenticationNotShown { get; set; } = true;
 
 
     protected override void OnInitialized()
@@ -119,7 +120,7 @@
         }
     }
 
-    private void HandleValidSubmit()
+    private void HandleValidExchangeChoiceSubmit()
     {
         // Hide the form to choose the exchanges
         IsExchangeChoiceFormNotShown = !IsExchangeChoiceFormNotShown;
@@ -128,5 +129,15 @@
         {
             IsBinanceAuthenticationNotShown = !IsBinanceAuthenticationNotShown;
         }
+
+        if (exchangeRazorModel.IsHuobiSelected)
+        {
+            IsHuobiAuthenticationNotShown = !IsHuobiAuthenticationNotShown;
+        }
+    }
+
+    private void HandleValidExchangeAuthenticationCredentialsSubmit()
+    {
+        _binanceService.CreateClient(binanceAuthenticationRazorModel.ApiKey, binanceAuthenticationRazorModel.SecretKey);
     }
 }
