@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using Binance.Net;
 
 namespace CryptoAverager.Service
 {
     public interface IBinanceService
     {
-        public Task CreateClient(string key, string secret);
+        public void CreateClient(string key, string secret);
+
+        public void CalculateCoinAverages();
     }
 }

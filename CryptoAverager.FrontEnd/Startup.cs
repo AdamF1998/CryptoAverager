@@ -1,10 +1,12 @@
 using CryptoAverager.FrontEnd.Middleware;
+using CryptoAverager.FrontEnd.RazorModels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using FluentValidation;
 
 namespace CryptoAverager.FrontEnd
 {
@@ -22,10 +24,17 @@ namespace CryptoAverager.FrontEnd
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
             services.AddLocalization(options => options.ResourcesPath = "Resources");
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
+
             services.ConfigureDependencyInjection();
+
+            services.AddTransient<IValidator<AuthenticationRazorModel>, AuthenticationRazorModelValidator>();
+
+            services.AddMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

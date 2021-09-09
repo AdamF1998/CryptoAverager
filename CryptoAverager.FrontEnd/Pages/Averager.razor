@@ -51,8 +51,8 @@
     </div>
 </EditForm>
 
-<EditForm Model="@binanceAuthenticationRazorModel" OnValidSubmit="HandleValidExchangeAuthenticationCredentialsSubmit" hidden="@IsBinanceAuthenticationNotShown">
-    <DataAnnotationsValidator />
+<EditForm Model="@authenticationRazorModel" OnValidSubmit="HandleValidExchangeAuthenticationCredentialsSubmit" hidden="@IsBinanceAuthenticationNotShown">
+    <FluentValidationValidator />
 
     <div class="form-group">
         <div class="row">
@@ -64,11 +64,13 @@
 
     <ValidationSummary />
 
+    <input type="hidden" @bind="authenticationRazorModel.Exchange" />
+
     <div class="form-group">
         <div class="row">
             <div class="col-md-6">
                 <label class="form-label" for="binanceAuthenticationApiKeyTextbox">Api Key</label>
-                <input class="form-control" type="text" @bind="binanceAuthenticationRazorModel.ApiKey" id="binanceAuthenticationApiKeyTextbox" />
+                <input class="form-control" type="text" @bind="authenticationRazorModel.BinanceApiKey" id="binanceAuthenticationApiKeyTextbox" />
             </div>
         </div>
     </div>
@@ -76,24 +78,60 @@
         <div class="row">
             <div class="col-md-6">
                 <label class="form-label" for="binanceAuthenticationSecretKeyTextbox">Secret Key</label>
-                <input class="form-control" type="text" @bind="binanceAuthenticationRazorModel.SecretKey" id="binanceAuthenticationSecretKeyTextbox" />
+                <input class="form-control" type="text" @bind="authenticationRazorModel.BinanceSecretKey" id="binanceAuthenticationSecretKeyTextbox" />
             </div>
         </div>
     </div>
 
     <div class="form-group">
-        <button class="btn btn-outline-primary" type="submit">Back</button>
+        <button class="btn btn-outline-primary" type="button" @onclick="ResetAuthenticationForms">Back</button>
+        <button class="btn btn-primary" type="submit">Authenticate</button>
+    </div>
+</EditForm>
+
+<EditForm Model="@authenticationRazorModel" OnValidSubmit="HandleValidExchangeAuthenticationCredentialsSubmit" hidden="@IsHuobiAuthenticationNotShown">
+    <FluentValidationValidator />
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-12">
+                <h4>Huobi Authentication Details</h4>
+            </div>
+        </div>
+    </div>
+
+    <ValidationSummary />
+
+    <input type="hidden" value="Huobi" />
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label" for="huobiAuthenticationApiKeyTextbox">Api Key</label>
+                <input class="form-control" type="text" @bind="authenticationRazorModel.HuobiApiKey" id="huobiAuthenticationApiKeyTextbox" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label" for="huobiAuthenticationSecretKeyTextbox">Secret Key</label>
+                <input class="form-control" type="text" @bind="authenticationRazorModel.HuobiSecretKey" id="huobiAuthenticationSecretKeyTextbox" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-outline-primary" type="button" @onclick="ResetAuthenticationForms">Back</button>
         <button class="btn btn-primary" type="submit">Authenticate</button>
     </div>
 </EditForm>
 
 
 
-
 @code {
     private ExchangeRazorModel exchangeRazorModel = new ExchangeRazorModel();
-    private BinanceAuthenticationRazorModel binanceAuthenticationRazorModel = new BinanceAuthenticationRazorModel();
-    private HuobiAuthenticationRazorModel huobiAuthenticationRazorModel = new HuobiAuthenticationRazorModel();
+    private AuthenticationRazorModel authenticationRazorModel = new AuthenticationRazorModel();
 
     private EditContext editContext;
     private ValidationMessageStore validationMessageStore;
@@ -138,6 +176,26 @@
 
     private void HandleValidExchangeAuthenticationCredentialsSubmit()
     {
-        _binanceService.CreateClient(binanceAuthenticationRazorModel.ApiKey, binanceAuthenticationRazorModel.SecretKey);
+        switch (authenticationRazorModel.Exchange)
+        {
+            case "Binance":
+                _binanceService.CreateClient(authenticationRazorModel.BinanceApiKey, authenticationRazorModel.BinanceSecretKey);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void ResetAuthenticationForms()
+    {
+        // Create a new instance to remove any existing user input
+        authenticationRazorModel = new AuthenticationRazorModel();
+
+        // Hide any authentication forms
+        IsBinanceAuthenticationNotShown = true;
+        IsHuobiAuthenticationNotShown = true;
+
+        // Show the exchange choice form again with any existing user input
+        IsExchangeChoiceFormNotShown = false;
     }
 }
