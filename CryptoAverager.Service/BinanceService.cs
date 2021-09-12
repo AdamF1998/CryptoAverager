@@ -1,5 +1,6 @@
 ﻿using Binance.Net;
 using Binance.Net.Objects;
+using Binance.Net.Objects.Spot.SpotData;
 using CryptoExchange.Net.Authentication;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -39,14 +40,23 @@ namespace CryptoAverager.Service
             }
         }
 
-        public void CalculateCoinAverages()
+        public void CalculateCoinAverages(string apiKey)
         {
+            _cache.TryGetValue(apiKey, out BinanceClient binanceClient);
 
+            // Find out all the coins the user has a balance for
+            var coins = GetAllCoinsWithABalance(binanceClient);
+
+            // Go through each coin, get the trade history and then calculate the average purchase price
+            foreach (var coin in coins.Result)
+            {
+                binanceClient.Spot.Order.GetUserTradesAsync(coin.Asset);
+            }
         }
 
-        public async Task<List<dynamic>> GetAllCoinsWithABalance(BinanceClient client)
+        public async Task<List<BinanceBalance>> GetAllCoinsWithABalance(BinanceClient client)
         {
-            List<dynamic> userHeldCoins = new List<dynamic>();
+            List<BinanceBalance> userHeldCoins = new List<BinanceBalance>();
 
             var response = await client.General.GetAccountInfoAsync();
 
