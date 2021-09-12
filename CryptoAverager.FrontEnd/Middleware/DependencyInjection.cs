@@ -8,6 +8,7 @@ namespace CryptoAverager.FrontEnd.Middleware
         public static IServiceCollection ConfigureDependencyInjection(this IServiceCollection services)
         {
             services.AddScoped<IBinanceService, BinanceService>();
+            services.AddScoped<IHuobiService, HuobiService>();
 
             return services;
         }

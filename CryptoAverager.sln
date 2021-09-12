@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoAverager.Api", "Crypt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoAverager.Utilities", "CryptoAverager.Utilities\CryptoAverager.Utilities.csproj", "{168A38AA-1110-460F-B332-92765F9BF06E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoAverager.FrontEnd", "CryptoAverager.FrontEnd\CryptoAverager.FrontEnd.csproj", "{908B4BD3-17F7-4361-A10E-52CE5186C274}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoAverager.FrontEnd", "CryptoAverager.FrontEnd\CryptoAverager.FrontEnd.csproj", "{908B4BD3-17F7-4361-A10E-52CE5186C274}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

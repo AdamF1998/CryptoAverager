@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="averager_navLink_text" xml:space="preserve">
+  <data name="authentication_navLink_text" xml:space="preserve">
     <value>Averager</value>
   </data>
   <data name="choose_language_button_text" xml:space="preserve">

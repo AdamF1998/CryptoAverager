@@ -1,0 +1,193 @@
+﻿@page "/authentication"
+@using CryptoAverager.FrontEnd.RazorModels
+
+@inject IStringLocalizer<App> _localiser
+@inject IBinanceService _binanceService
+@inject IHuobiService _huobiService 
+
+<div class="row">
+    <div class="col-12">
+        <h3 class="font-weight-bold">Averager</h3>
+    </div>
+</div>
+
+<EditForm EditContext="@editContext" OnValidSubmit="@HandleValidExchangeChoiceSubmit" hidden="@IsExchangeChoiceFormNotShown">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-12">
+                <h4>Select Exchanges</h4>
+                <p>Choose which exchanges you want us to pull order data from to create your averages</p>
+            </div>
+            <ul style="list-style-type:none;">
+                <li>
+                    <div class="form-check form-check-inline">
+                        <div class="col-12 d-flex align-items-center">
+                            <input class="form-check-input stretched-link" type="checkbox" value="" @bind="exchangeRazorModel.IsBinanceSelected" id="binanceCheckbox" />
+                            <label class="form-check-label" for="binanceCheckbox">
+                                <span><img width="100" src="/images/exchangeLogos/binance-logo.jpg" /></span>
+                            </label>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="form-check form-check-inline">
+                        <div class="col-12 d-flex align-items-center">
+                            <input class="form-check-input stretched-link" type="checkbox" value="" @bind="exchangeRazorModel.IsHuobiSelected" id="huobiCheckbox" />
+                            <label class="form-check-label" for="binanceCheckbox">
+                                <span><img width="100" src="/images/exchangeLogos/huobi-logo.png" /></span>
+                            </label>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-primary" type="submit">Choose</button>
+    </div>
+
+    <div class="form-group">
+        <ValidationMessage For="() => exchangeRazorModel.IsHuobiSelected"></ValidationMessage>
+    </div>
+</EditForm>
+
+<EditForm Model="@authenticationRazorModel" OnValidSubmit="HandleValidExchangeAuthenticationCredentialsSubmit">
+    <FluentValidationValidator />
+
+    <div hidden="@IsBinanceAuthenticationNotShown">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-12">
+                    <span><img width="100" src="/images/exchangeLogos/binance-logo.jpg" /></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label" for="binanceAuthenticationApiKeyTextbox">Api Key</label>
+                    <input class="form-control" type="text" @bind="authenticationRazorModel.BinanceApiKey" id="binanceAuthenticationApiKeyTextbox" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label" for="binanceAuthenticationSecretKeyTextbox">Secret Key</label>
+                    <input class="form-control" type="text" @bind="authenticationRazorModel.BinanceSecretKey" id="binanceAuthenticationSecretKeyTextbox" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div hidden="@IsHuobiAuthenticationNotShown">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-12">
+                    <span><img width="100" src="/images/exchangeLogos/huobi-logo.png" /></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label" for="huobiAuthenticationApiKeyTextbox">Api Key</label>
+                    <input class="form-control" type="text" @bind="authenticationRazorModel.HuobiApiKey" id="huobiAuthenticationApiKeyTextbox" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label" for="huobiAuthenticationSecretKeyTextbox">Secret Key</label>
+                    <input class="form-control" type="text" @bind="authenticationRazorModel.HuobiSecretKey" id="huobiAuthenticationSecretKeyTextbox" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ValidationSummary />
+
+    <div hidden="@(IsBinanceAuthenticationNotShown && IsHuobiAuthenticationNotShown)">
+        <div class="form-group">
+            <button class="btn btn-outline-primary" type="button" @onclick="ResetAuthenticationForms">Back</button>
+            <button class="btn btn-primary" type="submit">Authenticate</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private ExchangeRazorModel exchangeRazorModel = new ExchangeRazorModel();
+
+    private AuthenticationRazorModel authenticationRazorModel = new AuthenticationRazorModel();
+
+    private EditContext editContext;
+    private ValidationMessageStore validationMessageStore;
+
+    private bool IsExchangeChoiceFormNotShown { get; set; } = false;
+    private bool IsBinanceAuthenticationNotShown { get; set; } = true;
+    private bool IsHuobiAuthenticationNotShown { get; set; } = true;
+
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(exchangeRazorModel);
+        editContext.OnValidationRequested += HandleValidationRequested;
+        validationMessageStore = new ValidationMessageStore(editContext);
+    }
+
+    private void HandleValidationRequested(object sender, ValidationRequestedEventArgs args)
+    {
+        validationMessageStore.Clear();
+
+        if (!exchangeRazorModel.IsBinanceSelected && !exchangeRazorModel.IsHuobiSelected)
+        {
+            validationMessageStore.Add(() => exchangeRazorModel.IsHuobiSelected, "Select at least one");
+        }
+    }
+
+    private void HandleValidExchangeChoiceSubmit()
+    {
+        // Hide the form to choose the exchanges
+        IsExchangeChoiceFormNotShown = !IsExchangeChoiceFormNotShown;
+
+        if (exchangeRazorModel.IsBinanceSelected)
+        {
+            IsBinanceAuthenticationNotShown = !IsBinanceAuthenticationNotShown;
+        }
+
+        if (exchangeRazorModel.IsHuobiSelected)
+        {
+            IsHuobiAuthenticationNotShown = !IsHuobiAuthenticationNotShown;
+        }
+    }
+
+    private void HandleValidExchangeAuthenticationCredentialsSubmit()
+    {
+        if (!string.IsNullOrEmpty(authenticationRazorModel.BinanceApiKey) && !string.IsNullOrEmpty(authenticationRazorModel.BinanceSecretKey))
+        {
+            _binanceService.CreateClient(authenticationRazorModel.BinanceApiKey, authenticationRazorModel.BinanceSecretKey);
+        }
+
+        if (!string.IsNullOrEmpty(authenticationRazorModel.HuobiApiKey) && !string.IsNullOrEmpty(authenticationRazorModel.HuobiSecretKey))
+        {
+            //ToDo....
+        }
+    }
+
+    private void ResetAuthenticationForms()
+    {
+        // Create a new instance to remove any existing user input
+        authenticationRazorModel = new AuthenticationRazorModel();
+
+        // Hide any authentication forms
+        IsBinanceAuthenticationNotShown = true;
+        IsHuobiAuthenticationNotShown = true;
+
+        // Show the exchange choice form again with any existing user input
+        IsExchangeChoiceFormNotShown = false;
+    }
+}
