@@ -1,10 +1,12 @@
 ﻿using Binance.Net;
 using Binance.Net.Objects;
+using Binance.Net.Objects.Spot.MarketData;
 using Binance.Net.Objects.Spot.SpotData;
 using CryptoExchange.Net.Authentication;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security;
 using System.Threading.Tasks;
@@ -30,7 +32,10 @@ namespace CryptoAverager.Service
             // Store the Binance Client inside the memory cache - I don't want to be storing the ApiKey and the Secret
             if(!_cache.TryGetValue(key, out entry))
             {
-                entry = new BinanceClient(new BinanceClientOptions() { ApiCredentials = new ApiCredentials(secureKeyString, secureSecretString) });
+                entry = new BinanceClient(new BinanceClientOptions() 
+                { 
+                    ApiCredentials = new ApiCredentials(secureKeyString, secureSecretString) 
+                });
 
                 // Give the user 60 minutes before having to reauthenticate with the api again
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -42,15 +47,54 @@ namespace CryptoAverager.Service
 
         public async void CalculateCoinAverages(string apiKey)
         {
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                throw new ArgumentException(nameof(apiKey));
+            }
+
             _cache.TryGetValue(apiKey, out BinanceClient binanceClient);
+
+            if(binanceClient == null)
+            {
+                throw new ArgumentNullException(nameof(binanceClient));
+            }
 
             // Find out all the coins the user has a balance for
             var coins = await GetAllCoinsWithABalance(binanceClient);
 
-            // Go through each coin, get the trade history and then calculate the average purchase price
-            foreach (var coin in coins)
+            IEnumerable<BinanceSymbol> binanceSymbols = null;
+
+            // Get all binance pairs
+            var exchangeInfoResult = await binanceClient.Spot.System.GetExchangeInfoAsync();
+
+            if (exchangeInfoResult.Success)
             {
-               var test = await binanceClient.Spot.Order.GetUserTradesAsync(coin.Asset);
+                binanceSymbols = exchangeInfoResult.Data.Symbols;
+            }
+
+            //ToDo: Store the stable coins and fiat currencies somewhere else. I also need to pull this data from somewhere.
+            string[] stableCoins = { "USDT", "BUSD", "USDC" };
+
+            string[] fiatCurrency = { "GBP" };
+
+            // Find all the pairs for the coins that the user has a balance for
+            var matchingSymbols = FindAllMatchingSymbols(coins, binanceSymbols);
+
+            // We want to remove any stablecoins and fiat currency
+            matchingSymbols.RemoveAll(x => 
+                stableCoins.Contains(x.GetType().GetProperty("Asset").GetValue(x).ToString()) ||
+                fiatCurrency.Contains(x.GetType().GetProperty("Asset").GetValue(x).ToString()));
+
+            // Go through each coin, get the trade history and then calculate the average purchase price
+            foreach (var symbol in matchingSymbols)
+            {
+                var trades = await binanceClient.Spot.Order
+                    .GetUserTradesAsync(symbol.GetType().GetProperty("Name").GetValue(symbol).ToString());
+
+                if (trades.Data.Any())
+                {
+                    //ToDo: I need to do something with this data
+                }
             }
         }
 
@@ -77,9 +121,18 @@ namespace CryptoAverager.Service
             return userHeldCoins;
         }
 
-        private async Task GetAllCoinsTradeHistory()
+        private List<object> FindAllMatchingSymbols(List<BinanceBalance> coins, IEnumerable<BinanceSymbol> binanceSymbols)
         {
+            
+            var matchingSymbols = from x in coins
+                                  join y in binanceSymbols on x.Asset equals y.BaseAsset
+                                  select new
+                                  {
+                                      x.Asset,
+                                      y.Name
+                                  };
 
+            return matchingSymbols.ToList<object>();
         }
     }
 }
