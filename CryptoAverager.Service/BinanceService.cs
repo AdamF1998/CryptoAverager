@@ -54,11 +54,17 @@ namespace CryptoAverager.Service
 
             _cache.TryGetValue(apiKey, out BinanceClient binanceClient);
 
-            if(binanceClient == null)
+            if (binanceClient == null)
             {
                 throw new ArgumentNullException(nameof(binanceClient));
             }
 
+            //ToDo: This method will be returning the trades for each coin
+            await FindAllTradesForEachCoin(binanceClient);
+        }
+
+        private async Task FindAllTradesForEachCoin(BinanceClient binanceClient)
+        {
             // Find out all the coins the user has a balance for
             var coins = await GetAllCoinsWithABalance(binanceClient);
 
@@ -81,7 +87,7 @@ namespace CryptoAverager.Service
             var matchingSymbols = FindAllMatchingSymbols(coins, binanceSymbols);
 
             // We want to remove any stablecoins and fiat currency
-            matchingSymbols.RemoveAll(x => 
+            matchingSymbols.RemoveAll(x =>
                 stableCoins.Contains(x.GetType().GetProperty("Asset").GetValue(x).ToString()) ||
                 fiatCurrency.Contains(x.GetType().GetProperty("Asset").GetValue(x).ToString()));
 
@@ -98,7 +104,7 @@ namespace CryptoAverager.Service
             }
         }
 
-        public async Task<List<BinanceBalance>> GetAllCoinsWithABalance(BinanceClient client)
+        private async Task<List<BinanceBalance>> GetAllCoinsWithABalance(BinanceClient client)
         {
             List<BinanceBalance> userHeldCoins = new List<BinanceBalance>();
 
