@@ -1,5 +1,21 @@
-﻿<h3>Averager</h3>
+﻿@page "/averager"
+
+@inject IStringLocalizer<App> _localiser
+@inject IBinanceService _binanceService 
+@inject IHuobiService _huobiService
+
+<h3>Averager</h3>
+
+<div class="row">
+    <div class="col-12">
+        <button type="button" @onclick="@CalculateAverages">Calculate</button>
+    </div>
+</div>
 
 @code {
 
+    protected void CalculateAverages()
+    {
+        _binanceService.CalculateCoinAverages("FXPvlSN6U5k57xfodxB7WKZmDgCSfh6Lb9CBl2Uy6VSQlOW0UpU9mnVQWzCFvqiA");
+    }
 }

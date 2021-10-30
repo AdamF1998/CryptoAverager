@@ -6,6 +6,6 @@ namespace CryptoAverager.Service
     {
         public void CreateClient(string key, string secret);
 
-        public void CalculateCoinAverages();
+        public void CalculateCoinAverages(string apiKey);
     }
 }

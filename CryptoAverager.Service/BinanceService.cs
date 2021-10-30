@@ -40,17 +40,17 @@ namespace CryptoAverager.Service
             }
         }
 
-        public void CalculateCoinAverages(string apiKey)
+        public async void CalculateCoinAverages(string apiKey)
         {
             _cache.TryGetValue(apiKey, out BinanceClient binanceClient);
 
             // Find out all the coins the user has a balance for
-            var coins = GetAllCoinsWithABalance(binanceClient);
+            var coins = await GetAllCoinsWithABalance(binanceClient);
 
             // Go through each coin, get the trade history and then calculate the average purchase price
-            foreach (var coin in coins.Result)
+            foreach (var coin in coins)
             {
-                binanceClient.Spot.Order.GetUserTradesAsync(coin.Asset);
+               var test = await binanceClient.Spot.Order.GetUserTradesAsync(coin.Asset);
             }
         }
 
